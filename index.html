@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Alice In Borderland — Scenes</title>
+
+    <!-- Manrope font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --ink: #f2efe6;
+            --muted: #8a8579;
+            --card-radius: 18px;
+            --dur: .55s;
+            --ease: cubic-bezier(.65, 0, .35, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            height: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--ink);
+            font-family: 'Manrope', system-ui, sans-serif;
+            font-weight: 400;
+            transition: background-color .5s var(--ease);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .eyebrow {
+            text-align: center;
+            font-family: 'Manrope', system-ui, sans-serif;
+            font-weight: 500;
+            letter-spacing: .35em;
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 48px;
+            opacity: 1;
+            transition: opacity .25s var(--ease), transform .3s var(--ease);
+        }
+
+        h1 {
+            text-align: center;
+            font-family: 'Manrope', system-ui, sans-serif;
+            font-weight: 800;
+            font-style: normal;
+            font-size: clamp(32px, 6vw, 58px);
+            letter-spacing: -.02em;
+            margin: 6px 0 44px;
+            opacity: 1;
+            transition: opacity .25s var(--ease), transform .3s var(--ease);
+        }
+
+        .eyebrow.fade-out,
+        h1.fade-out {
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 28px;
+            max-width: 1080px;
+            margin: 0 auto 80px;
+            padding: 0 24px;
+            transition: opacity .4s var(--ease);
+        }
+
+        @media (max-width:640px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .grid.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .card {
+            position: relative;
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            cursor: pointer;
+            aspect-ratio: 16/9;
+            background: #111;
+            transform: scale(1);
+            transition: transform .25s var(--ease);
+        }
+
+        .card:active {
+            transform: scale(.97);
+        }
+
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .suit {
+            position: absolute;
+            top: 12px;
+            left: 14px;
+            font-family: 'Manrope', system-ui, sans-serif;
+            font-weight: 700;
+            font-size: 20px;
+            opacity: 0;
+            transition: opacity .3s var(--ease);
+        }
+
+        .card:hover .suit {
+            opacity: .9;
+        }
+
+        /* Detail overlay (FLIP target) */
+        .ghost {
+            position: fixed;
+            z-index: 40;
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, .6);
+        }
+
+        .ghost img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .detail-text {
+            position: fixed;
+            z-index: 40;
+            left: 40px;
+            max-width: 560px;
+            padding: 26px 30px;
+            border-radius: 14px;
+            background: rgba(0, 0, 0, .32);
+            border: 1px solid rgba(255, 255, 255, .14);
+            backdrop-filter: blur(6px);
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity .4s var(--ease) .1s, transform .4s var(--ease) .1s;
+        }
+
+        .detail-text.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .detail-text h2 {
+            font-family: 'Manrope', system-ui, sans-serif;
+            font-weight: 700;
+            font-style: italic;
+            font-size: 26px;
+            margin: 0 0 10px;
+            letter-spacing: -.01em;
+        }
+
+        .detail-text p {
+            font-family: 'Manrope', system-ui, sans-serif;
+            font-weight: 400;
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .close-btn {
+            position: fixed;
+            top: 28px;
+            right: 28px;
+            z-index: 41;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, .25);
+            background: rgba(0, 0, 0, .35);
+            color: var(--ink);
+            font-family: 'Manrope', system-ui, sans-serif;
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity .3s var(--ease), background .2s;
+        }
+
+        .close-btn.show {
+            opacity: 1;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, .15);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="eyebrow">NETFLIX &middot; SEASON COLLECTION</div>
+    <h1>Alice In Borderland Scenes</h1>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="close-btn" id="closeBtn">✕</div>
+
+    <script>
+        const SCENES = [{
+            img: "images/image1.jpeg",
+            color: "#C98006",
+            suit: "♠",
+            title: "King of Spades Blimp ~ S2E7",
+            reason: "I absolutely LOVE this scene for it's graphics as well as it's impact on the storyline since they managed to kill the King of Spades in a very unexpected way. The blimp is also a very interesting concept and I love the way it was used in the story."
+        }, {
+            img: "images/image2.jpg",
+            color: "#4E727A",
+            suit: "♦",
+            title: "Empty Tokyo ~ S1E1",
+            reason: "I love the cinematography of this scene and just how tense it is in general. It is the start of MANY future plot twists in the series."
+        }, {
+            img: "images/image3.jpg",
+            color: "#3B5425",
+            suit: "♣",
+            title: "Overgrown City ~ S2E1",
+            reason: "Season 2 is by far my favorite season of the series because of the overgrown city of Tokyo. Peak VFX."
+        }, {
+            img: "images/image4.jpg",
+            color: "#E59C3F",
+            suit: "♥",
+            title: "The Festival Trial ~ S3E1",
+            reason: "This is the TRUE first game in the Alice In Borderland manga and I love it."
+        }];
+        /* ========================================= */
+
+        const grid = document.getElementById("grid");
+        const closeBtn = document.getElementById("closeBtn");
+        const eyebrow = document.querySelector(".eyebrow");
+        const heading = document.querySelector("h1");
+        let ghost, textEl, open = false;
+
+        SCENES.forEach((s, i) => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML =
+                `<div class="suit">${s.suit || ""}</div><img src="${s.img}" alt="${s.title}" loading="lazy">`;
+            card.addEventListener("mouseenter", () => document.body.style.backgroundColor = s.color);
+            card.addEventListener("mouseleave", () => {
+                if (!open) document.body.style.backgroundColor = "#0a0a0a";
+            });
+            card.addEventListener("click", () => openDetail(card, s));
+            grid.appendChild(card);
+        });
+
+        function openDetail(card, s) {
+            if (open) return;
+            open = true;
+            document.body.style.backgroundColor = s.color;
+
+            eyebrow.classList.add("fade-out");
+            heading.classList.add("fade-out");
+
+            const rect = card.getBoundingClientRect();
+            const img = card.querySelector("img");
+
+            ghost = document.createElement("div");
+            ghost.className = "ghost";
+            ghost.style.top = rect.top + "px";
+            ghost.style.left = rect.left + "px";
+            ghost.style.width = rect.width + "px";
+            ghost.style.height = rect.height + "px";
+            ghost.innerHTML = `<img src="${s.img}" alt="${s.title}">`;
+            document.body.appendChild(ghost);
+
+            grid.classList.add("hidden");
+
+            const natW = img.naturalWidth || 1200,
+                natH = img.naturalHeight || 675;
+            const targetW = Math.min(natW, window.innerWidth * 0.85, 980);
+            const targetH = targetW * (natH / natW);
+
+            requestAnimationFrame(() => {
+                ghost.style.transition =
+                    `top var(--dur) var(--ease), left var(--dur) var(--ease), width var(--dur) var(--ease), height var(--dur) var(--ease)`;
+                ghost.style.top = "40px";
+                ghost.style.left = "40px";
+                ghost.style.width = targetW + "px";
+                ghost.style.height = targetH + "px";
+            });
+
+            textEl = document.createElement("div");
+            textEl.className = "detail-text";
+            textEl.style.top = (40 + targetH + 28) + "px";
+            textEl.innerHTML = `<h2>${s.title}</h2><p>${s.reason}</p>`;
+            document.body.appendChild(textEl);
+
+            setTimeout(() => {
+                textEl.classList.add("show");
+                closeBtn.classList.add("show");
+            }, 550);
+        }
+
+        closeBtn.addEventListener("click", closeDetail);
+
+        function closeDetail() {
+            if (!open || !ghost) return;
+            closeBtn.classList.remove("show");
+            textEl.classList.remove("show");
+            document.body.style.backgroundColor = "#0a0a0a";
+
+            setTimeout(() => {
+                const cards = grid.querySelectorAll(".card");
+                const idx = [...cards].findIndex(c => c.querySelector("img").src === ghost.querySelector("img")
+                .src);
+                const rect = cards[idx].getBoundingClientRect();
+                ghost.style.top = rect.top + "px";
+                ghost.style.left = rect.left + "px";
+                ghost.style.width = rect.width + "px";
+                ghost.style.height = rect.height + "px";
+            }, 150);
+
+            grid.classList.remove("hidden");
+            eyebrow.classList.remove("fade-out");
+            heading.classList.remove("fade-out");
+
+            setTimeout(() => {
+                ghost.remove();
+                textEl.remove();
+                open = false;
+            }, 700);
+        }
+    </script>
+
+</body>
+</html>
