@@ -11,10 +11,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
 
     <style>
+        /* ---------- Reset & base ---------- */
         :root {
             --bg: #0a0a0a;
             --ink: #f2efe6;
-            --muted: #8a8579;
+            --muted: #b0aca0;
             --card-radius: 18px;
             --dur: .55s;
             --ease: cubic-bezier(.65, 0, .35, 1);
@@ -31,13 +32,102 @@
         }
 
         body {
-            background: var(--bg);
-            color: var(--ink);
             font-family: 'Manrope', system-ui, sans-serif;
             font-weight: 400;
-            transition: background-color .5s var(--ease);
             overflow-x: hidden;
             min-height: 100vh;
+            position: relative;
+            background: #0a0a0a; /* fallback */
+        }
+
+        /* ---------- Animated background layer (texture) ---------- */
+        #bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            background: #0a0a0a;
+            overflow: hidden;
+        }
+
+        #bg-animation .gradient-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            background:
+                radial-gradient(circle at 30% 40%, rgba(180, 80, 30, 0.3) 0%, transparent 40%),
+                radial-gradient(circle at 70% 60%, rgba(40, 120, 200, 0.25) 0%, transparent 45%),
+                radial-gradient(circle at 10% 80%, rgba(200, 60, 120, 0.2) 0%, transparent 35%),
+                radial-gradient(circle at 90% 20%, rgba(220, 180, 40, 0.2) 0%, transparent 30%);
+            animation: moveGradients 20s ease-in-out infinite alternate;
+            transform-origin: center;
+            will-change: transform;
+        }
+
+        @keyframes moveGradients {
+            0% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+            }
+            25% {
+                transform: translate(-5%, -3%) scale(1.05) rotate(2deg);
+            }
+            50% {
+                transform: translate(3%, -5%) scale(0.95) rotate(-2deg);
+            }
+            75% {
+                transform: translate(-2%, 5%) scale(1.02) rotate(1deg);
+            }
+            100% {
+                transform: translate(5%, 2%) scale(1.08) rotate(-1deg);
+            }
+        }
+
+        /* Noise overlay */
+        #bg-animation .noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+            background-size: 256px 256px;
+            animation: noiseMove 0.8s steps(8) infinite;
+        }
+
+        @keyframes noiseMove {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 128px 128px;
+            }
+        }
+
+        /* ---------- Color overlay (tint) ---------- */
+        #color-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background-color: transparent;
+            transition: background-color 0.5s var(--ease);
+        }
+
+        /* ---------- Content (above everything) ---------- */
+        .eyebrow,
+        h1,
+        .grid,
+        .close-btn {
+            position: relative;
+            z-index: 2;
         }
 
         .eyebrow {
@@ -45,10 +135,10 @@
             font-family: 'Manrope', system-ui, sans-serif;
             font-weight: 500;
             letter-spacing: .35em;
-            font-size: 11px;
-            color: var(--muted);
+            font-size: 12px;
+            color: #fff;
             margin-top: 48px;
-            opacity: 1;
+            opacity: 0.9;
             transition: opacity .25s var(--ease), transform .3s var(--ease);
         }
 
@@ -60,7 +150,8 @@
             font-size: clamp(32px, 6vw, 58px);
             letter-spacing: -.02em;
             margin: 6px 0 44px;
-            opacity: 1;
+            color: #fff;
+            opacity: 0.95;
             transition: opacity .25s var(--ease), transform .3s var(--ease);
         }
 
@@ -71,6 +162,7 @@
             pointer-events: none;
         }
 
+        /* ---------- Grid ---------- */
         .grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -92,15 +184,17 @@
             pointer-events: none;
         }
 
+        /* ---------- Cards ---------- */
         .card {
             position: relative;
             border-radius: var(--card-radius);
             overflow: hidden;
             cursor: pointer;
             aspect-ratio: 16/9;
-            background: #111;
+            background: #1a1a1a;
             transform: scale(1);
             transition: transform .25s var(--ease);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
 
         .card:active {
@@ -120,22 +214,24 @@
             left: 14px;
             font-family: 'Manrope', system-ui, sans-serif;
             font-weight: 700;
-            font-size: 20px;
+            font-size: 22px;
+            color: rgba(255, 255, 255, 0.8);
             opacity: 0;
             transition: opacity .3s var(--ease);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
         }
 
         .card:hover .suit {
-            opacity: .9;
+            opacity: .95;
         }
 
-        /* Detail overlay (FLIP target) */
+        /* ---------- Detail overlay (FLIP target) ---------- */
         .ghost {
             position: fixed;
             z-index: 40;
             border-radius: var(--card-radius);
             overflow: hidden;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, .6);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
         }
 
         .ghost img {
@@ -145,19 +241,22 @@
             display: block;
         }
 
+        /* ---------- Detail text panel (larger) ---------- */
         .detail-text {
             position: fixed;
             z-index: 40;
             left: 40px;
-            max-width: 560px;
-            padding: 26px 30px;
-            border-radius: 14px;
-            background: rgba(0, 0, 0, .32);
-            border: 1px solid rgba(255, 255, 255, .14);
-            backdrop-filter: blur(6px);
+            right: 40px;
+            max-width: 720px;
+            padding: 32px 40px;
+            border-radius: 18px;
+            background: rgba(0, 0, 0, 0.40);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
             opacity: 0;
-            transform: translateY(8px);
+            transform: translateY(12px);
             transition: opacity .4s var(--ease) .1s, transform .4s var(--ease) .1s;
+            margin: 0 auto;
         }
 
         .detail-text.show {
@@ -169,41 +268,45 @@
             font-family: 'Manrope', system-ui, sans-serif;
             font-weight: 700;
             font-style: italic;
-            font-size: 26px;
-            margin: 0 0 10px;
+            font-size: 32px;
+            margin: 0 0 12px;
             letter-spacing: -.01em;
+            color: #fff;
         }
 
         .detail-text p {
             font-family: 'Manrope', system-ui, sans-serif;
             font-weight: 400;
             margin: 0;
-            color: var(--muted);
-            line-height: 1.6;
-            font-size: 15px;
+            color: #fff;
+            line-height: 1.7;
+            font-size: 18px;
+            opacity: 0.9;
         }
 
+        /* ---------- Close button ---------- */
         .close-btn {
             position: fixed;
             top: 28px;
             right: 28px;
             z-index: 41;
-            width: 38px;
-            height: 38px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, .25);
-            background: rgba(0, 0, 0, .35);
-            color: var(--ink);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.45);
+            color: #fff;
             font-family: 'Manrope', system-ui, sans-serif;
             font-weight: 400;
-            font-size: 16px;
+            font-size: 20px;
             line-height: 1;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             opacity: 0;
-            transition: opacity .3s var(--ease), background .2s;
+            transition: opacity .3s var(--ease), background .2s, transform .2s;
+            backdrop-filter: blur(4px);
         }
 
         .close-btn.show {
@@ -211,12 +314,39 @@
         }
 
         .close-btn:hover {
-            background: rgba(255, 255, 255, .15);
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* ---------- Responsive tweaks ---------- */
+        @media (max-width: 640px) {
+            .detail-text {
+                left: 20px;
+                right: 20px;
+                padding: 24px 20px;
+                max-width: 100%;
+            }
+            .detail-text h2 {
+                font-size: 24px;
+            }
+            .detail-text p {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- Animated background layer (texture) -->
+    <div id="bg-animation">
+        <div class="gradient-layer"></div>
+        <div class="noise"></div>
+    </div>
+
+    <!-- Semi-transparent color overlay (tint) -->
+    <div id="color-overlay"></div>
+
+    <!-- Main content -->
     <div class="eyebrow">NETFLIX &middot; SEASON COLLECTION</div>
     <h1>Alice In Borderland Scenes</h1>
 
@@ -225,6 +355,7 @@
     <div class="close-btn" id="closeBtn">✕</div>
 
     <script>
+        /* ============ CUSTOMISE HERE ============ */
         const SCENES = [{
             img: "images/image1.jpeg",
             color: "#C98006",
@@ -247,41 +378,66 @@
             img: "images/image4.jpg",
             color: "#E59C3F",
             suit: "♥",
-            title: "The Festival Trial ~ S3E1",
+            title: "Sacred Fortunes ~ S3E1",
             reason: "This is the TRUE first game in the Alice In Borderland manga and I love it."
         }];
         /* ========================================= */
 
+        // ---------- Helpers ----------
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 0, g: 0, b: 0 };
+        }
+
+        // ---------- DOM refs ----------
         const grid = document.getElementById("grid");
         const closeBtn = document.getElementById("closeBtn");
         const eyebrow = document.querySelector(".eyebrow");
         const heading = document.querySelector("h1");
+        const colorOverlay = document.getElementById("color-overlay");
+
         let ghost, textEl, open = false;
 
+        // ---------- Build cards ----------
         SCENES.forEach((s, i) => {
             const card = document.createElement("div");
             card.className = "card";
             card.innerHTML =
                 `<div class="suit">${s.suit || ""}</div><img src="${s.img}" alt="${s.title}" loading="lazy">`;
-            card.addEventListener("mouseenter", () => document.body.style.backgroundColor = s.color);
+            card.addEventListener("mouseenter", () => {
+                if (!open) {
+                    const rgb = hexToRgb(s.color);
+                    colorOverlay.style.backgroundColor = `rgba(${rgb.r},${rgb.g},${rgb.b},0.45)`;
+                }
+            });
             card.addEventListener("mouseleave", () => {
-                if (!open) document.body.style.backgroundColor = "#0a0a0a";
+                if (!open) {
+                    colorOverlay.style.backgroundColor = 'transparent';
+                }
             });
             card.addEventListener("click", () => openDetail(card, s));
             grid.appendChild(card);
         });
 
+        // ---------- Open detail ----------
         function openDetail(card, s) {
             if (open) return;
             open = true;
-            document.body.style.backgroundColor = s.color;
+            const rgb = hexToRgb(s.color);
+            colorOverlay.style.backgroundColor = `rgba(${rgb.r},${rgb.g},${rgb.b},0.55)`;
 
+            // fade header
             eyebrow.classList.add("fade-out");
             heading.classList.add("fade-out");
 
             const rect = card.getBoundingClientRect();
             const img = card.querySelector("img");
 
+            // ghost image
             ghost = document.createElement("div");
             ghost.className = "ghost";
             ghost.style.top = rect.top + "px";
@@ -293,23 +449,37 @@
 
             grid.classList.add("hidden");
 
+            // target size: larger – nearly full top area
             const natW = img.naturalWidth || 1200,
                 natH = img.naturalHeight || 675;
-            const targetW = Math.min(natW, window.innerWidth * 0.85, 980);
-            const targetH = targetW * (natH / natW);
+            const maxW = Math.min(window.innerWidth * 0.92, 1200);
+            const maxH = window.innerHeight * 0.65;
+            let targetW = Math.min(natW, maxW);
+            let targetH = targetW * (natH / natW);
+            if (targetH > maxH) {
+                targetH = maxH;
+                targetW = targetH * (natW / natH);
+            }
+            targetW = Math.max(targetW, 400);
+            targetH = Math.max(targetH, 225);
+
+            const leftPos = (window.innerWidth - targetW) / 2;
+            const topPos = 20;
 
             requestAnimationFrame(() => {
                 ghost.style.transition =
                     `top var(--dur) var(--ease), left var(--dur) var(--ease), width var(--dur) var(--ease), height var(--dur) var(--ease)`;
-                ghost.style.top = "40px";
-                ghost.style.left = "40px";
+                ghost.style.top = topPos + "px";
+                ghost.style.left = leftPos + "px";
                 ghost.style.width = targetW + "px";
                 ghost.style.height = targetH + "px";
             });
 
+            // detail text panel
             textEl = document.createElement("div");
             textEl.className = "detail-text";
-            textEl.style.top = (40 + targetH + 28) + "px";
+            const textTop = topPos + targetH + 28;
+            textEl.style.top = textTop + "px";
             textEl.innerHTML = `<h2>${s.title}</h2><p>${s.reason}</p>`;
             document.body.appendChild(textEl);
 
@@ -319,24 +489,26 @@
             }, 550);
         }
 
+        // ---------- Close detail ----------
         closeBtn.addEventListener("click", closeDetail);
 
         function closeDetail() {
             if (!open || !ghost) return;
             closeBtn.classList.remove("show");
             textEl.classList.remove("show");
-            document.body.style.backgroundColor = "#0a0a0a";
+            colorOverlay.style.backgroundColor = 'transparent';
 
-            setTimeout(() => {
-                const cards = grid.querySelectorAll(".card");
-                const idx = [...cards].findIndex(c => c.querySelector("img").src === ghost.querySelector("img")
-                .src);
+            const cards = grid.querySelectorAll(".card");
+            const idx = [...cards].findIndex(c => c.querySelector("img").src === ghost.querySelector("img").src);
+            if (idx !== -1) {
                 const rect = cards[idx].getBoundingClientRect();
+                ghost.style.transition =
+                    `top var(--dur) var(--ease), left var(--dur) var(--ease), width var(--dur) var(--ease), height var(--dur) var(--ease)`;
                 ghost.style.top = rect.top + "px";
                 ghost.style.left = rect.left + "px";
                 ghost.style.width = rect.width + "px";
                 ghost.style.height = rect.height + "px";
-            }, 150);
+            }
 
             grid.classList.remove("hidden");
             eyebrow.classList.remove("fade-out");
@@ -346,7 +518,7 @@
                 ghost.remove();
                 textEl.remove();
                 open = false;
-            }, 700);
+            }, 650);
         }
     </script>
 
